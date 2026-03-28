@@ -1,0 +1,8 @@
+BBQr Kotlin
+Copyright (c) 2026 gorunjinian
+
+This is a Kotlin implementation of the BBQr protocol.
+
+The BBQr protocol specification and reference implementation were created by
+Coinkite Inc. and released into the public domain under The Unlicense.
+See: https://github.com/coinkite/BBQr
