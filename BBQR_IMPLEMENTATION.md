@@ -6,7 +6,7 @@ BBQr (Better Bitcoin QR) is a protocol for encoding binary data into one or more
 
 **Dependency:**
 ```kotlin
-implementation("com.gorunjinian:bbqr:1.0.0")
+implementation("com.gorunjinian:bbqr:1.0.2")
 ```
 
 **Package:** `com.gorunjinian.bbqr`
@@ -263,6 +263,8 @@ enum class Encoding(val code: Char) {
 | `Hex`    | Direct hex               | Lowest      | 2x          | Debugging, simple use cases     |
 
 **Note:** When `Zlib` is selected but compression doesn't reduce size, the library automatically falls back to `Base32` encoding.
+
+**Decoding compatibility:** Zlib decoding uses a fallback chain (JZlib raw deflate, JZlib zlib-wrapped, `java.util.zip` raw deflate, `java.util.zip` zlib-wrapped) to handle deflate streams from any standard BBQr encoder, including those that use different compression parameters or zlib wrappers.
 
 #### Alignment Requirements
 

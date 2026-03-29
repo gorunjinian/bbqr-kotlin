@@ -18,7 +18,7 @@ Pure Kotlin implementation of the [BBQr protocol](https://github.com/coinkite/BB
 
 ```kotlin
 dependencies {
-    implementation("com.gorunjinian:bbqr:1.0.0")
+    implementation("com.gorunjinian:bbqr:1.0.2")
 }
 ```
 
@@ -26,7 +26,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'com.gorunjinian:bbqr:1.0.0'
+    implementation 'com.gorunjinian:bbqr:1.0.2'
 }
 ```
 
