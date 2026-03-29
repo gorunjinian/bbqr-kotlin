@@ -21,6 +21,8 @@ tasks.test {
 }
 
 mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
     coordinates("com.gorunjinian", "bbqr", version.toString())
 
     pom {
