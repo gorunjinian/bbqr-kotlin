@@ -51,7 +51,7 @@ internal object Decode {
 
     private fun zlibDecompress(data: ByteArray): ByteArray {
         try {
-            val inflater = Inflater(10, true)
+            val inflater = Inflater(15, true)
             val output = ByteArray(data.size * 4)
 
             inflater.setInput(data, 0, data.size, false)
@@ -68,6 +68,10 @@ internal object Decode {
                 if (inflater.next_out_index > 0) {
                     result.write(output, 0, inflater.next_out_index)
                     inflater.setOutput(output, 0, output.size)
+                } else if (status == JZlib.Z_BUF_ERROR) {
+                    // No progress: no output produced and inflate cannot continue.
+                    // Break to avoid an infinite loop on truncated/corrupt data.
+                    throw DecodeError.UnableToInflateZlib("Inflate stalled: no progress possible")
                 }
 
                 status = inflater.inflate(JZlib.Z_NO_FLUSH)
