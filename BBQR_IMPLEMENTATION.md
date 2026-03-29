@@ -6,7 +6,7 @@ BBQr (Better Bitcoin QR) is a protocol for encoding binary data into one or more
 
 **Dependency:**
 ```kotlin
-implementation("com.gorunjinian:bbqr:0.1.0")
+implementation("com.gorunjinian:bbqr:1.0.0")
 ```
 
 **Package:** `com.gorunjinian.bbqr`
