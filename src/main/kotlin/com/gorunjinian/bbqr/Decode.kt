@@ -50,8 +50,48 @@ internal object Decode {
     }
 
     private fun zlibDecompress(data: ByteArray): ByteArray {
+        // Try JZlib first (raw deflate, then zlib-wrapped), fall back to java.util.zip
+        // if JZlib can't handle the stream (some deflate streams trigger JZlib edge cases).
         try {
-            val inflater = Inflater(15, true)
+            return inflateBytes(data, nowrap = true)
+        } catch (_: Exception) {}
+        try {
+            return inflateBytes(data, nowrap = false)
+        } catch (_: Exception) {}
+        // Fallback: java.util.zip.Inflater handles all standard deflate streams
+        try {
+            return javaInflateBytes(data, nowrap = true)
+        } catch (_: Exception) {}
+        try {
+            return javaInflateBytes(data, nowrap = false)
+        } catch (e: Exception) {
+            throw DecodeError.UnableToInflateZlib(e.message ?: "Unknown decompression error")
+        }
+    }
+
+    private fun javaInflateBytes(data: ByteArray, nowrap: Boolean): ByteArray {
+        val inflater = java.util.zip.Inflater(nowrap)
+        try {
+            inflater.setInput(data)
+            val result = ByteArrayOutputStream()
+            val buffer = ByteArray(1024)
+            while (!inflater.finished()) {
+                val count = inflater.inflate(buffer)
+                if (count == 0 && inflater.needsInput()) break
+                result.write(buffer, 0, count)
+            }
+            if (result.size() == 0) {
+                throw DecodeError.UnableToInflateZlib("No data produced")
+            }
+            return result.toByteArray()
+        } finally {
+            inflater.end()
+        }
+    }
+
+    private fun inflateBytes(data: ByteArray, nowrap: Boolean): ByteArray {
+        val inflater = Inflater(15, nowrap)
+        try {
             val output = ByteArray(data.size * 4)
 
             inflater.setInput(data, 0, data.size, false)
@@ -69,8 +109,6 @@ internal object Decode {
                     result.write(output, 0, inflater.next_out_index)
                     inflater.setOutput(output, 0, output.size)
                 } else if (status == JZlib.Z_BUF_ERROR) {
-                    // No progress: no output produced and inflate cannot continue.
-                    // Break to avoid an infinite loop on truncated/corrupt data.
                     throw DecodeError.UnableToInflateZlib("Inflate stalled: no progress possible")
                 }
 
@@ -81,12 +119,9 @@ internal object Decode {
                 result.write(output, 0, inflater.next_out_index)
             }
 
-            inflater.end()
             return result.toByteArray()
-        } catch (e: DecodeError) {
-            throw e
-        } catch (e: Exception) {
-            throw DecodeError.UnableToInflateZlib(e.message ?: "Unknown decompression error")
+        } finally {
+            inflater.end()
         }
     }
 }
