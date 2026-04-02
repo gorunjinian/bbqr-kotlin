@@ -82,7 +82,7 @@ private fun ByteArray.toHexString(): String {
 
 private val HEX_CHARS = "0123456789ABCDEF".toCharArray()
 
-private fun ceilDiv(a: Int, b: Int): Int = (a + b - 1) / b
+internal fun ceilDiv(a: Int, b: Int): Int = (a + b - 1) / b
 
 private fun zlibCompress(data: ByteArray): ByteArray {
     try {

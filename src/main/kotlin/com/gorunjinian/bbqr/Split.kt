@@ -32,11 +32,18 @@ data class SplitResult(
             val headerString = Header(encoded.encoding, fileType, best.count).toString()
             val encodedData = encoded.data
 
+            // Distribute data evenly per BBQr spec: "Divide your data equally"
+            // All blocks must be equal length except the last (which gets the remainder)
+            val splitMod = encoded.encoding.splitMod
+            val dataLen = encodedData.length
+            val rawChunk = ceilDiv(dataLen, best.count)
+            val chunkSize = ceilDiv(rawChunk, splitMod) * splitMod
+
             val parts = (0 until best.count).map { i ->
-                val startByte = i * best.dataPerQr
-                val endByte = minOf(startByte + best.dataPerQr, encodedData.length)
+                val start = i * chunkSize
+                val end = minOf(start + chunkSize, dataLen)
                 val partIndex = intToBase36(i)
-                val dataPart = encodedData.substring(startByte, endByte)
+                val dataPart = encodedData.substring(start, end)
                 "$headerString$partIndex$dataPart"
             }
 
