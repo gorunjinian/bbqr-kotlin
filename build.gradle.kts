@@ -21,8 +21,16 @@ tasks.test {
 }
 
 mavenPublishing {
-    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
+    publishToMavenCentral()
+
+    // Sign only where a key is actually available. CI supplies one via
+    // ORG_GRADLE_PROJECT_signingInMemoryKey; locally there is none, which keeps
+    // publishToMavenLocal working without any GPG config on the machine. Maven
+    // Local does not need signatures — only the Central bundle does.
+    if (providers.gradleProperty("signingInMemoryKey").isPresent) {
+        signAllPublications()
+    }
+
     coordinates("com.gorunjinian", "bbqr", version.toString())
 
     pom {
